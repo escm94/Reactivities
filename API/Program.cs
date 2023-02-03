@@ -22,6 +22,14 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>(opt => {
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+builder.Services.AddCors(opt => 
+{
+    opt.AddPolicy("CorsPolicy", policy => 
+    {
+        policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000");
+    });
+});
+
 
 var app = builder.Build();
 
@@ -36,6 +44,10 @@ if (app.Environment.IsDevelopment())
 
 // gonna remove for now, just to keep things simpler
 // app.UseHttpsRedirection();
+
+// this has to be pretty early because right away the browser will send a pre-flight request checking if cors is available
+// has to match the name we called it in the service above
+app.UseCors("CorsPolicy");
 
 // in the beginning, this won't do much since we don't have authorization/authentication set up at the moment.
 app.UseAuthorization();
