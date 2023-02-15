@@ -1,3 +1,4 @@
+using API.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -11,24 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 // that we create. we'll look into Dependency Injection to inject these services inside other classes within our application.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
-// order isn't important when it comes to services, so we'll just add our entity here
-// BTW, we added Entity Framework to our Persistence project, but not the API project which we're in now.
-// the API project does have     a transitive dependency via the Application project to the Persistence project, 
-// so we should be able to access AddDbContext from here. however, we should probably run dotnet restore at the solution level.  
-builder.Services.AddDbContext<DataContext>(opt => {
-    opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
-builder.Services.AddCors(opt => 
-{
-    opt.AddPolicy("CorsPolicy", policy => 
-    {
-        policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000");
-    });
-});
+// common methodology for keeping Program.cs lean
+builder.Services.AddApplicationServices(builder.Configuration);
 
 
 var app = builder.Build();
