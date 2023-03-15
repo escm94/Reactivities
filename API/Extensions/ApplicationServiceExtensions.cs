@@ -16,9 +16,10 @@ namespace API.Extensions
 
             // order isn't important when it comes to services, so we'll just add our entity here
             // BTW, we added Entity Framework to our Persistence project, but not the API project which we're in now.
-            // the API project does have     a transitive dependency via the Application project to the Persistence project, 
+            // the API project does have a transitive dependency via the Application project to the Persistence project, 
             // so we should be able to access AddDbContext from here. however, we should probably run dotnet restore at the solution level.  
             services.AddDbContext<DataContext>(opt => {
+                // see appSettings.Development.json for DefaultConnection definition
                 opt.UseSqlite(config.GetConnectionString("DefaultConnection"));
             });
             services.AddCors(opt => 

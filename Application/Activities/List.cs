@@ -18,7 +18,6 @@ namespace Application.Activities
         _context = context; 
       }
       
-      
       // since this is returning a Task, we need to make this async
       public async Task<List<Activity>> Handle(Query request, CancellationToken cancellationToken)
       {
