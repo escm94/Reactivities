@@ -1,4 +1,5 @@
 using API.Extensions;
+using API.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -20,6 +21,9 @@ builder.Services.AddApplicationServices(builder.Configuration);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionMiddleware>();
+
+
 // this is also referred to as middleware. think of middleware, for now, as things that can do something 
 // with the HTTP request on the way in or out. the term pipeline is used for this. so, middleware goes here, services go above
 if (app.Environment.IsDevelopment())
