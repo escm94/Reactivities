@@ -1,5 +1,9 @@
 using API.Extensions;
 using API.Middleware;
+using Domain;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -12,10 +16,16 @@ var builder = WebApplication.CreateBuilder(args);
 // think of services as things we use inside our application logic. we can add services to add more funcitonality to our logic 
 // that we create. we'll look into Dependency Injection to inject these services inside other classes within our application.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(opt => 
+{
+    // makes it so that every single controller endpoint is going to require authentication
+    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+    opt.Filters.Add(new AuthorizeFilter(policy));
+});
 
 // common methodology for keeping Program.cs lean
 builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddIdentityServices(builder.Configuration);
 
 
 var app = builder.Build();
@@ -39,7 +49,7 @@ if (app.Environment.IsDevelopment())
 // has to match the name we called it in the service above
 app.UseCors("CorsPolicy");
 
-// in the beginning, this won't do much since we don't have authorization/authentication set up at the moment.
+app.UseAuthentication();
 app.UseAuthorization();
 
 // this middleware registers the endpoints with the application so that when a request comes in, the app knows where to send it. 
@@ -52,8 +62,9 @@ var services = scope.ServiceProvider;
 try
 {
     var context = services.GetRequiredService<DataContext>();
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
     await context.Database.MigrateAsync();
-    await Seed.SeedData(context);
+    await Seed.SeedData(context, userManager);
 }
 catch (Exception ex)
 {
