@@ -9,7 +9,7 @@ using System.Security.Claims;
 
 namespace API.Controllers
 {
-  // [AllowAnonymous] // makes it so that none of the endoints in this file require authentication
+  [AllowAnonymous] // makes it so that none of the endoints in this file require authentication
   [ApiController]
   [Route("api/[controller]")]
   public class AccountController : ControllerBase
@@ -46,12 +46,14 @@ namespace API.Controllers
     {
       if (await _userManager.Users.AnyAsync(x => x.UserName == registerDto.Username))
       {
-        return BadRequest("Username is already taken");
+        ModelState.AddModelError("username", "Username taken");
+        return ValidationProblem();
       }
 
       if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
       {
-        return BadRequest("Email is already taken");
+        ModelState.AddModelError("email", "Email taken");
+        return ValidationProblem();
       }
 
       var user = new AppUser
